@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>오리잡기</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap" rel="stylesheet">
+
+    <style type="text/css">
+
+
+        .lilita-one-regular {
+            font-family: "Lilita One", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        .hi-melody-regular {
+            font-family: "Hi Melody", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+        .wrap{
+            width: 800px; 
+            margin:0; 
+            padding-top: 5%; padding-left:5% }
+
+        .flex{display: flex;}
+        .bg_f{display:block;position:relative;width: 33.3%; height: 400px; }
+        .bg_f img{width: 100%; height: auto;}
+        .r{position: absolute; left:0px; top:0px; width: 266px; height: auto;}
+        .item1:hover .r{display: none}
+        .item2:hover .r{display: none}
+        .item3:hover .r{display: none}
+        body {
+            margin: 0; padding: 0;
+            overflow: hidden;
+            background-image: url('back.jpg');
+            background-size: cover; /* 배경 이미지가 화면에 맞게 조정됩니다 */
+            background-repeat: no-repeat; /* 이미지가 반복되지 않도록 설정 */
+            background-position: center center; /* 화면의 중앙에 배경 이미지가 위치 */
+        }
+        h1 { font-family:Lilita One ;
+            font-size: 100px;
+            color: orange; margin: 0;
+            padding-top: 5%; padding-left: 5%;
+            padding-bottom: 1%;
+            text-shadow: -2px 0 #000, 0 2px #000, 2px 0 #000, 0 -2px #000;
+        }
+        p1{ padding-left: 6%; padding-bottom: 5%;
+            font-family: Hi Melody;
+            font-size: 25px;
+        }
+        .box {
+            width: 190px;
+            height: 190px;
+            position: absolute;
+            background-image: url('mom.png');
+            background-size: cover;
+            z-index: 1;
+        }
+        .mon {
+            width: 130px;
+            height: 130px;
+            position: absolute;
+            background-image: url('monster.png');
+            background-size: cover;
+            z-index: 1;
+        }
+        #popup {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 30px;
+            text-align: center;
+            padding-top: 200px;
+            z-index: 9999;
+            cursor: pointer;
+        }
+        /* 커서를 따라오는 텍스트 */
+        #movingText {
+            position: absolute;
+            font-size: 24px;
+            font-family: 'Hi Melody', sans-serif;
+            color: white;
+            z-index: 999;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 커서를 따라다니는 텍스트 추가 -->
+    <div id="movingText">꽥꽥!</div>
+
+    <!-- 화면에 여러 박스 배치 -->
+    <div class="box" style="left: 50px; top: 200px;"></div>
+
+    <!-- 팝업창 -->
+    <div id="popup">축하합니다! 오리를 다 잡았어요! <br> 요기에도 이미지가 들어가요</div>
+
+    <script type="text/javascript">
+        let activeBox = null;
+        let monPosition = [];
+        let monNum = 6;
+        let caughtNum = 0;
+
+        // 마우스 움직임에 따라 텍스트 위치 이동
+        document.addEventListener('mousemove', function(event) {
+            let movingText = document.getElementById('movingText');
+            movingText.style.left = event.pageX + 10 + 'px';
+            movingText.style.top = event.pageY + 10 + 'px';
+        });
+
+        // 몬스터 개수 업데이트 함수
+        function updateMonsterCount() {
+            document.getElementById('caughtMonsters').innerText = caughtNum;
+            document.getElementById('remainingMonsters').innerText = monNum - caughtNum;
+        }
+
+        // 몬스터 생성 함수
+        function createMon(i) {
+            let monster = document.createElement("div");
+            monster.className = "mon";
+            monster.id = "mon" + i;
+
+            let monX = Math.random() * (innerWidth - 100) / 100;
+            let monY = Math.random() * (innerHeight - 100) / 100;
+            let mX = monX.toFixed(0) * 100;
+            let mY = monY.toFixed(0) * 100;
+
+            monPosition.push([mX, mY, monster.id]);
+            monster.style.left = mX + "px";
+            monster.style.top = mY + "px";
+            document.body.appendChild(monster);
+        }
+
+        // 몬스터 자동 이동 함수
+        function moveMonsters() {
+            monPosition.forEach((mon, index) => {
+                let monster = document.getElementById(mon[2]);
+                let direction = Math.floor(Math.random() * 4);
+                if (direction === 0 && mon[0] > 0) {
+                    mon[0] -= 100;
+                } else if (direction === 1 && mon[0] < window.innerWidth - 100) {
+                    mon[0] += 100;
+                } else if (direction === 2 && mon[1] > 0) {
+                    mon[1] -= 100;
+                } else if (direction === 3 && mon[1] < window.innerHeight - 100) {
+                    mon[1] += 100;
+                }
+                monster.style.left = mon[0] + "px";
+                monster.style.top = mon[1] + "px";
+            });
+        }
+
+        // 박스 클릭 시 활성화
+        const boxes = document.querySelectorAll('.box');
+        boxes.forEach(box => {
+            box.xplot = parseInt(box.style.left);
+            box.yplot = parseInt(box.style.top);
+            box.onclick = function() {
+                activeBox = box;
+            }
+        });
+
+        // 키보드로 활성화된 박스 이동
+        window.onkeydown = function(e) {
+            if (activeBox) {
+                let a = e.keyCode;
+                if (a == 38) {
+                    activeBox.yplot -= 50;
+                    activeBox.style.top = activeBox.yplot + "px";
+                }
+                if (a == 40) {
+                    activeBox.yplot += 50;
+                    activeBox.style.top = activeBox.yplot + "px";
+                }
+                if (a == 39) {
+                    activeBox.xplot += 50;
+                    activeBox.style.left = activeBox.xplot + "px";
+                }
+                if (a == 37) {
+                    activeBox.xplot -= 50;
+                    activeBox.style.left = activeBox.xplot + "px";
+                }
+                monPosition.forEach((mon, index) => {
+                    if (activeBox.xplot == mon[0] && activeBox.yplot == mon[1]) {
+                        alert("아기 오리를 잡았어요!");
+                        let caughtMonster = document.getElementById(mon[2]);
+                        caughtMonster.remove();
+                        monPosition.splice(index, 1);
+
+                        caughtNum++;
+                        updateMonsterCount();
+
+                        if (monPosition.length === 0) {
+                            showPopup();
+                        }
+                    }
+                });
+            }
+        }
+
+        // 팝업창을 표시하는 함수
+        function showPopup() {
+            let popup = document.getElementById('popup');
+            popup.style.display = 'block';
+        }
+
+        document.getElementById('popup').onclick = function() {
+            this.style.display = 'none';
+        }
+
+        for (let i = 0; i < monNum; i++) {
+            createMon(i);
+        }
+
+        setInterval(moveMonsters, 1000);
+        updateMonsterCount();
+    </script>
+
+    <h1>Catch the duckling!</h1>
+    <p1>엄마 오리를 클릭하고 방향키로 움직여 아기 오리들을 잡아주세요!</p1>
+
+    <div id="monsterCount" style="position: absolute; top: 10px; right: 20px; font-size: 15px; font-family: Hi Melody;">
+        엄마 오리가 잡은 오리: <span id="caughtMonsters">0</span> / 도망가는 오리: <span id="remainingMonsters">6</span>
+    </div>
+
+    <div class="wrap flex">
+        <a class="bg_f item1"> 
+            <img src="aa.jpg">
+            <img class="r" src="bb.jpg">
+        </a>
+        <a class="bg_f item2">
+            <img src="aa.jpg">
+            <img class="r" src="bb.jpg">
+        </a>
+        <a class="bg_f item3">
+            <img src="aa.jpg">
+            <img class="r" src="bb.jpg"> 
+        </a>
+    </div>
+
+
+</body>
+</html>
